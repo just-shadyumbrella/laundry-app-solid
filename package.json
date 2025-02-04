@@ -9,8 +9,8 @@
     "preview": "vite preview",
     "prisma:generate": "pnpx prisma generate",
     "prisma:migrate": "pnpx prisma migrate dev",
-    "prisma:push": "pnpx prisma db push dev --preview-feature",
-    "prisma:pull": "pnpx prisma db pull dev --preview-feature"
+    "prisma:push": "pnpx prisma db push dev",
+    "prisma:pull": "pnpx prisma db pull dev"
   },
   "dependencies": {
     "@prisma/client": "^6.3.0",
