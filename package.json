@@ -8,13 +8,15 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "prisma:generate": "pnpx prisma generate",
-    "prisma:migrate": "pnpx prisma migrate dev",
+    "prisma:migrate": "pnpx prisma migrate dev --name init",
     "prisma:push": "pnpx prisma db push dev",
     "prisma:pull": "pnpx prisma db pull dev"
   },
   "dependencies": {
     "@prisma/client": "^6.3.0",
+    "@solidjs/router": "^0.15.3",
     "cookie-session": "^2.1.0",
+    "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "solid-js": "^1.9.4"
   },

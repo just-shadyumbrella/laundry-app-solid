@@ -1,6 +1,10 @@
 import express from 'express'
 import cookieSession from 'cookie-session'
+import dotenv from 'dotenv'
 import { PrismaClient } from '@prisma/client'
+import { isBrowserRequest } from './util'
+
+dotenv.config()
 
 const prisma = new PrismaClient()
 
@@ -18,11 +22,34 @@ app.use(
   })
 )
 
+if (Number(process.env.DEBUG) === 1) {
+  app.use((req, res, next) => {
+    console.log(process.env)
+    console.log(req.headers)
+    next()
+  })
+}
+
+app.use((req, res, next) => {
+  if(isBrowserRequest(req)) {
+    console.log('Browser request')
+  }
+  next()
+})
+
 app.get('/auth/status', async (req, res) => {
   const users = await prisma.users.findMany()
   if (users.length === 0) {
     return res.redirect('/login')
   }
 })
+
+class ResponseData {
+  constructor(
+    public error: 'OK' | 'INVALID_JSON' | 'INVALID_REQUEST' | 'CRED_INVALID' | 'USER_NOT_FOUND' | 'SERVER_FAULT',
+    public message?: string,
+    public data?: any
+  ) {}
+}
 
 export const handler = app
