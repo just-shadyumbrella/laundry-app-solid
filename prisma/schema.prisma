@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model orders {
+  invoice      Int           @id @default(autoincrement())
+  user_id      Int           @unique(map: "user_id") @default(0)
+  service      String        @default("reguler") @db.VarChar(16)
+  ironed       Boolean       @default(false)
+  delivery     Boolean       @default(false)
+  amount       Int           @default(0)
+  status       orders_status @default(queued)
+  created_at   DateTime      @db.Timestamp(0)
+  finished_at  DateTime      @db.Timestamp(0)
+  notes        String        @db.Text
+  services     services      @relation(fields: [service], references: [service], onDelete: NoAction, onUpdate: NoAction, map: "FK_orders_services")
+  users        users         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_orders_users")
+  transactions transactions?
+
+  @@index([service], map: "FK_orders_services")
+}
+
+model services {
+  service     String         @id @db.VarChar(16)
+  estimated   Int            @default(0) @db.TinyInt
+  units       services_units @default(pcs)
+  fee         Decimal        @default(0) @db.Decimal(10, 0)
+  description String?        @db.Text
+  orders      orders[]
+}
+
+model transactions {
+  id        Int      @id @default(autoincrement())
+  invoice   Int      @unique(map: "invoice")
+  cost      Decimal  @db.Decimal(10, 0)
+  picked_up DateTime @db.Timestamp(0)
+  discount  Decimal  @default(0.00) @db.Decimal(2, 2)
+  orders    orders   @relation(fields: [invoice], references: [invoice], onDelete: NoAction, onUpdate: NoAction, map: "FK_transactions_orders")
+}
+
+model users {
+  id            Int        @id @default(autoincrement())
+  name          String     @default("someone") @db.VarChar(64)
+  address       String     @default("street") @db.Text
+  email         String?    @unique(map: "email") @db.VarChar(255)
+  phone         String?    @unique(map: "phone") @db.VarChar(16)
+  password      String?    @db.VarChar(255)
+  type          users_type @default(customer)
+  registered_at DateTime?  @db.Timestamp(0)
+  notes         String?    @db.Text
+  orders        orders?
+}
+
+enum services_units {
+  kg
+  pcs
+}
+
+enum orders_status {
+  queued
+  process
+  finished
+  picked_up @map("picked-up")
+}
+
+enum users_type {
+  customer
+  employee
+  admin
+}
